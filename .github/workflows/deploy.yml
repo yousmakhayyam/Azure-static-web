@@ -19,9 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Configure
     steps:
-      - name: Placeholder for Build
-        run: echo "No build needed for this static web app"
-     
+      - name: Placeholder for Build (Static Site)
+        run: echo "No build needed for a simple static web app."
 
   deploy:
     needs: build
@@ -35,4 +34,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "/"
-          deployment_action: "upload" 
+          # No need to explicitly define deployment_action for simple uploads
+          # api_location: "api" # Uncomment if you have an API
+          # output_location: "build" # Uncomment if your build outputs to a specific folder
