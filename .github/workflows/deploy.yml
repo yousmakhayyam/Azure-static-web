@@ -7,33 +7,24 @@ on:
     branches: ["main"]
 
 jobs:
-  checkout:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    name: Checkout Code
+    name: Build and Deploy Job
+
     steps:
-      - name: Checkout repository
+      # 🧾 Stage 1: Checkout the repository
+      - name: 📦 Checkout repository
         uses: actions/checkout@v3
 
-  build:
-    needs: checkout
-    runs-on: ubuntu-latest
-    name: Build and Configure
-    steps:
-      - name: Placeholder for Build (Static Site)
-        run: echo "No build needed for a simple static web app."
+      # 🔨 Stage 2: Build step (skip if not needed)
+      - name: ⚙️ Build the project (static site, so no build needed)
+        run: echo "No build needed for static site (HTML/CSS/JS)"
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    name: Deploy to Azure Static Web App
-    steps:
-      - name: Deploy to Azure Static Web Apps
-        id: deploy-static-web-app
+      # 🚀 Stage 3: Deploy to Azure Static Web App
+      - name: 🚀 Deploy to Azure Static Web App
+        id: deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          app_location: "/"
-          deployment_action: "upload"
-          # api_location: "api" # Uncomment if you have an API
-          # output_location: "build" # Uncomment if your build outputs to a specific folder
+          app_location: "/"  # index.html must be in the root
