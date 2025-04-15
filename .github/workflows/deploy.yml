@@ -12,19 +12,20 @@ jobs:
     name: Build and Deploy Job
 
     steps:
-      # 🧾 Stage 1: Checkout the repository
-      - name: 📦 Checkout repository
+      # Stage 1: Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 🔨 Stage 2: Build step (skip if not needed)
-      - name: ⚙️ Build the project (static site, so no build needed)
-        run: echo "No build needed for static site (HTML/CSS/JS)"
+      # Stage 2: Build step (not needed for static HTML/CSS/JS)
+      - name: No build needed
+        run: echo "Static HTML/CSS/JS project - no build step required."
 
-      # 🚀 Stage 3: Deploy to Azure Static Web App
-      - name: 🚀 Deploy to Azure Static Web App
+      # Stage 3: Deploy to Azure Static Web App
+      - name: Deploy to Azure Static Web App
         id: deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
+          action: "upload"  # Important: This fixes the deployment_action error
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          app_location: "/"  # index.html must be in the root
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Provided by GitHub automatically
+          app_location: "/"  # Root folder where your index.html and other files exist
