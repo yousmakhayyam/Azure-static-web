@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Placeholder for Build
         run: echo "No build needed for this static web app"
-      
+     
 
   deploy:
     needs: build
@@ -35,4 +35,4 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "/"
-         
+          deployment_action: "upload" 
