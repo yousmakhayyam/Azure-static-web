@@ -7,13 +7,32 @@ on:
     branches: ["main"]
 
 jobs:
-  build_and_deploy:
+  checkout:
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
-
+    name: Checkout Code
     steps:
-      # Stage 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Stage
+  build:
+    needs: checkout
+    runs-on: ubuntu-latest
+    name: Build and Configure
+    steps:
+      - name: Placeholder for Build
+        run: echo "No build needed for this static web app"
+      
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy to Azure Static Web App
+    steps:
+      - name: Deploy to Azure Static Web Apps
+        id: deploy-static-web-app
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          app_location: "/"
+         
