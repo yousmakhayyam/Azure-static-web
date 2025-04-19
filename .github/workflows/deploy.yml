@@ -2,39 +2,68 @@ name: Deploy Static HTML App to Azure
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 env:
-  AZURE_RESOURCE_GROUP: 'yousma-rg'
-  AZURE_LOCATION: 'East US'
-  AZURE_APP_SERVICE_PLAN: 'yousma-plan'
-  AZURE_WEBAPP_NAME: 'azure-web-app'
+  AZURE_RESOURCE_GROUP: 'yousma-rg'       # Tumhara resource group
+  AZURE_LOCATION: 'East US'              # Region
+  AZURE_APP_SERVICE_PLAN: 'yousma-plan'  # Tumhara App Service plan
+  AZURE_WEBAPP_NAME: 'azure-web-app'     # Web App name (static HTML)
 
 jobs:
-  # Stage 1: Checkout Code
+
+  # Stage 1: Checkout Repository
   checkout:
-    name: Checkout Repository
+    name: Checkout Code
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-  # Stage 2: Login to Azure & Deploy
-  deploy:
-    name: Deploy Static HTML to Azure Web App
+  # Stage 2: Create Azure Resources
+  create_resources:
+    name: Create Azure Resources
     needs: checkout
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
     steps:
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy HTML files to Azure Web App
+      - name: Create Resource Group (if not exists)
+        run: |
+          az group show --name ${{ env.AZURE_RESOURCE_GROUP }} || \
+          az group create --name ${{ env.AZURE_RESOURCE_GROUP }} --location "${{ env.AZURE_LOCATION }}"
+
+      - name: Create App Service Plan (if not exists)
+        run: |
+          az appservice plan show --name ${{ env.AZURE_APP_SERVICE_PLAN }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
+          az appservice plan create --name ${{ env.AZURE_APP_SERVICE_PLAN }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --sku B1 --is-linux
+
+      - name: Create Web App (if not exists)
+        run: |
+          az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
+          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts"
+
+  # Stage 3: Deploy Static HTML
+  deploy:
+    name: Deploy HTML App to Azure Web App
+    needs: create_resources
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy HTML files
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
