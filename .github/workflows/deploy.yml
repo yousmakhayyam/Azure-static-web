@@ -6,14 +6,13 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_RESOURCE_GROUP: 'yousma-rg'       # name of resource group
-  AZURE_LOCATION: 'East US'              #  Region
-  AZURE_APP_SERVICE_PLAN: 'yousma-plan'  # App Service plan
-  AZURE_WEBAPP_NAME: yousma-static-html-0425   # Web App name 
+  AZURE_RESOURCE_GROUP: 'yousma-rg'                 
+  AZURE_LOCATION: 'East US'                        
+  AZURE_APP_SERVICE_PLAN: 'yousma-plan'             
+  AZURE_WEBAPP_NAME: 'yousma-static-html-0427'      
 
 jobs:
 
-  # Stage 1: Checkout Repository
   checkout:
     name: Checkout Code
     runs-on: ubuntu-latest
@@ -21,33 +20,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-  # Stage 2: Create Azure Resources
   create_resources:
     name: Create Azure Resources
     needs: checkout
     runs-on: ubuntu-latest
     steps:
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Create Resource Group (if not exists)
+      - name: Create Resource Group
         run: |
           az group show --name ${{ env.AZURE_RESOURCE_GROUP }} || \
           az group create --name ${{ env.AZURE_RESOURCE_GROUP }} --location "${{ env.AZURE_LOCATION }}"
 
-      - name: Create App Service Plan (if not exists)
+      - name: Create App Service Plan
         run: |
           az appservice plan show --name ${{ env.AZURE_APP_SERVICE_PLAN }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
           az appservice plan create --name ${{ env.AZURE_APP_SERVICE_PLAN }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --sku B1 --is-linux
 
-      - name: Create Web App (if not exists)
+      - name: Create Web App
         run: |
           az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
-          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts"
+          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "PHP|8.1"
 
-  # Stage 3: Deploy Static HTML web
   deploy:
     name: Deploy HTML App to Azure Web App
     needs: create_resources
@@ -58,12 +55,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy HTML files
+      - name: Deploy Static HTML Files
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
