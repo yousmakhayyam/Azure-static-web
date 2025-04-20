@@ -47,7 +47,7 @@ jobs:
           az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
           az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts"
 
-  # Stage 3: Deploy Static HTML
+  # Stage 3: Deploy Static HTML web
   deploy:
     name: Deploy HTML App to Azure Web App
     needs: create_resources
