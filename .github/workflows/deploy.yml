@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_RESOURCE_GROUP: 'yousma-rg'       # Tumhara resource group
+  AZURE_RESOURCE_GROUP: 'yousma-rg'       # name of resource group
   AZURE_LOCATION: 'East US'              # Region
-  AZURE_APP_SERVICE_PLAN: 'yousma-plan'  # Tumhara App Service plan
+  AZURE_APP_SERVICE_PLAN: 'yousma-plan'  # App Service plan
   AZURE_WEBAPP_NAME: yousma-static-html-0425     # Web App name 
 
 jobs:
