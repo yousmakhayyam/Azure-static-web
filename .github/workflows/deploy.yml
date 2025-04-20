@@ -45,7 +45,9 @@ jobs:
       - name: Create Web App (if not exists)
         run: |
           az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
-          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts"
+          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts" \
+          --settings WEBSITE_RUN_FROM_PACKAGE=0 \  
+          --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa" 
 
   # Stage 3: Deploy Static HTML
   deploy:
@@ -67,4 +69,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: .
+          package: ./
