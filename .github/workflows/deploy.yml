@@ -45,13 +45,11 @@ jobs:
       - name: Create Web App (if not exists)
         run: |
           az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || \
-          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts" \
-          --settings WEBSITE_RUN_FROM_PACKAGE=0 \  
-          --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa" 
-# ... rest of the workflow
-  
+          az webapp create --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_SERVICE_PLAN }} --runtime "NODE|18-lts"
+
+  # Stage 3: Deploy Static HTML
   deploy:
-    name: Deploy HTML App
+    name: Deploy HTML App to Azure Web App
     needs: create_resources
     runs-on: ubuntu-latest
     environment:
@@ -59,29 +57,14 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-  
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-  
-      # NEW: Install PM2 globally
-      - name: Install PM2
-        run: npm install -g pm2
-  
-      # Configure Azure
-      - name: Configure Azure Web App for Static Site
-        run: |
-          az webapp config set \
-            --name ${{ env.AZURE_WEBAPP_NAME }} \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa" \
-            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-            WEBSITE_RUN_FROM_PACKAGE=0
-  
-      # Deploy files
+
       - name: Deploy HTML files
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ./
+          package: .
