@@ -1,4 +1,4 @@
-name: Deploy Static HTML App to Azure (Production)
+name: Deploy Static HTML App to Azure (Staging)
 
 on:
   workflow_dispatch:  # Manually deploy karogi jab chaho
@@ -8,7 +8,7 @@ env:
   AZURE_RESOURCE_GROUP: 'yousma-rg'
 
 jobs:
-  deploy-production:
+  deploy-staging:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,8 +20,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App (Production)
+      - name: Deploy to Azure Web App (Staging Slot)
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: staging     # <-- Important: slot specify kiya hua hai
           package: .
